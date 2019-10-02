@@ -7,9 +7,10 @@ export AWS_SESSION_TOKEN=$AWS_SESSION_TOKEN
 export APINAME="$LAMBDA_FUNC_NAME-API"
 export OVERLAY_S3URL="s3://${BUCKET_NAME}/${LAMBDA_FUNC_NAME}/lambda-deploy.tgz"
 
-
+# Remove zipped contents if it exists
 rm -f lambda-deploy.zip
 rm -f lambda-deploy-overlay.tgz
+
 # Move to src directory 
 cd src
 
@@ -27,7 +28,7 @@ else
 fi
 
 # zip project contents
-zip -r ../lambda-deploy.zip *
+zip -qr ../lambda-deploy.zip *
 
 # Move back to main project
 cd ..
