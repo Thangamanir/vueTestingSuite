@@ -9,19 +9,45 @@ export OVERLAY_S3URL="s3://${BUCKET_NAME}/${LAMBDA_FUNC_NAME}/lambda-deploy.tgz"
 
 
 rm -f lambda-deploy.zip
-tar -czvf lambda-deploy-overlay.tgz ./
-aws s3 cp --acl public-read lambda-deploy-overlay.tgz "$OVERLAY_S3URL"
-cd src; zip -r ../lambda-deploy.zip *
+# Move to src directory 
+cd src
+
+echo 
+echo "***************************"
+echo "*****NPM INSTALL***********"
+echo "***************************"
+
+# npm install node modules
+if npm install
+then 
+    echo "$(tput setaf 2)npm successfully installed$(tput sgr 0)"
+else
+    echo "$(tput setaf 2)**********ERROR***********$(tput sgr 0)"
+fi
+
+# zip project contents
+zip -r ../lambda-deploy.zip *
+
+# Move back to main project
 cd ..
 
+# Create a tarball of the entire project structure
+tar -czvf lambda-deploy-overlay.tgz ./
+
+# Upload tar to AWS S3
+aws s3 cp --acl public-read lambda-deploy-overlay.tgz "$OVERLAY_S3URL"
+
+# Validate Cloudformation template
 aws cloudformation validate-template \
     --template-body file://template.yaml
- 
+
+# Package template
 aws cloudformation package \
    --template-file template.yaml \
    --output-template-file packaged.yaml \
    --s3-bucket "${BUCKET_NAME}" 
 
+# Deploy stack
 if  aws cloudformation deploy \
         --stack-name ${LAMBDA_FUNC_NAME} \
         --template-file packaged.yaml \
