@@ -9,6 +9,7 @@ export OVERLAY_S3URL="s3://${BUCKET_NAME}/${LAMBDA_FUNC_NAME}/lambda-deploy.tgz"
 
 
 rm -f lambda-deploy.zip
+rm -f lambda-deploy-overlay.tgz
 # Move to src directory 
 cd src
 
@@ -32,7 +33,7 @@ zip -r ../lambda-deploy.zip *
 cd ..
 
 # Create a tarball of the entire project structure
-tar -czvf lambda-deploy-overlay.tgz ./
+tar -czf lambda-deploy-overlay.tgz ./
 
 # Upload tar to AWS S3
 aws s3 cp --acl public-read lambda-deploy-overlay.tgz "$OVERLAY_S3URL"
